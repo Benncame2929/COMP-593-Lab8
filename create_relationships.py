@@ -68,15 +68,15 @@ def populate_relationships_table():
     for _ in range(100):
 
      person1_id = randint(1, 200)
-    person2_id = randint(1, 200)
+     person2_id = randint(1, 200)
     # Ensure no one is relationless
     while person1_id == person2_id:
      person2_id = randint(1, 200)
-    rel_type = choice(('friend', 'spouse', 'partner', 'relative'))
-    start_date = fake.date_between(start_date='-50y', end_date='today')
+     rel_type = choice(('friend', 'spouse', 'partner', 'relative'))
+     start_date = fake.date_between(start_date='-50y', end_date='today')
 
-    New_friends = (person1_id, person2_id, rel_type, start_date)
-    cur.execute(add_relationship_query, New_friends)
+     New_friends = (person1_id, person2_id, rel_type, start_date)
+     cur.execute(add_relationship_query, New_friends)
 
     con.commit()
     con.close()
