@@ -1,3 +1,5 @@
+import pandas
+
 """
 Description:
  Generates a CSV reports containing all married couples in
