@@ -20,6 +20,26 @@ def main():
     csv_path = os.path.join(script_dir, 'married_couples.csv')
     save_married_couples_csv(married_couples, csv_path)
 
+def save_married_couples_csv(married_couples, csv_path):
+    """Saves list of married couples to a CSV file, including both people's 
+    names and their wedding anniversary date  
+
+    Args:
+        married_couples (list): (name1, name2, start_date) of married couples
+        csv_path (str): Path of CSV file
+    """
+    
+    MarriedList = []
+
+    for p1, p2, date in married_couples :
+        MarriedList.append({'PERSON1' : p1, 'PERSON2' :p2, 'START_DATE' : date})
+
+        datafr = pd.Dataframe(MarriedList)
+        datafr.to_csv(csv_path, Index=False)
+
+    return
+
+
 def get_married_couples():
     """Queries the Social Network database for all married couples.
 
@@ -53,17 +73,7 @@ def get_married_couples():
 
     return
 
-def save_married_couples_csv(married_couples, csv_path):
-    """Saves list of married couples to a CSV file, including both people's 
-    names and their wedding anniversary date  
 
-    Args:
-        married_couples (list): (name1, name2, start_date) of married couples
-        csv_path (str): Path of CSV file
-    """
-    # TODO: Function body
-    # Hint: We did this in Lab 7.
-    return
 
 if __name__ == '__main__':
    main()
