@@ -26,9 +26,31 @@ def get_married_couples():
     Returns:
         list: (name1, name2, start_date) of married couples 
     """
-    # TODO: Function body
+
+    con = sqlite3.connect('social_network.db')
+    cur = con.cursor()
+
     # Hint: See example code in lab instructions entitled "Get a List of Relationships"
-    con = sqlite3.connect(db_path)
+ 
+
+    all_relationships_list = """
+        SELECT person1.name, person2.name, start_date, type FROM relationships
+        JOIN people person1 ON person1_id = person1.id
+        JOIN people person2 ON person2_id = person2.id
+        WHERE type = "spoue";
+    """ 
+
+    cur.execute(all_relationships_list)
+    all_relationships = cur.fetchall()
+
+    con.commit()
+    con.close()
+
+    mariage_List = []
+    for person1, person2, date, ship in all_relationships:
+        mariage_List.append([person1, person2, date])
+    return mariage_List
+
     return
 
 def save_married_couples_csv(married_couples, csv_path):
