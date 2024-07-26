@@ -29,10 +29,10 @@ def create_relationships_table():
     create_relationships_tbl_query = """
     CREATE TABLE IF NOT EXISTS relationships
     (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
     person1_id INTEGER NOT NULL,
     person2_id INTEGER NOT NULL,
-    type TEXT NOT NULL,
+    type       TEXT NOT NULL,
     start_date DATE NOT NULL,
     FOREIGN KEY (person1_id) REFERENCES people (id),
     FOREIGN KEY (person2_id) REFERENCES people (id)
@@ -50,24 +50,26 @@ def populate_relationships_table():
     # SQL query that inserts a row of data into the relationships table.
     add_relationship_query = """
     INSERT INTO relationships
-    (person1_id, person2_id, type, start_date)
-    VALUES (?, ?, ?, ?);
+        (
+            person1_id,
+            person2_id,
+            type,
+            start_date
+        )
+        VALUES (?, ?, ?, ?);
     """
     
     fake = Faker()
-
-    for _ in range(100):
-        person1_id = randint(1, 200)
+    person1_id = randint(1, 200)
+    person2_id = randint(1, 200)
+    while person2_id == person1_id:
         person2_id = randint(1, 200)
-        # Ensure no one is relationless
-        while person1_id == person2_id:
-            person2_id = randint(1, 200)
-        rel_type = choice(('friend', 'spouse', 'partner', 'relative'))
-        start_date = fake.date_between(start_date='-50y', end_date='today')
 
-        new_friends = (person1_id, person2_id, rel_type, start_date)
-        cur.execute(add_relationship_query, new_friends)
+    relationship_type = choice(('friend', 'spouse', 'partner', 'relative'))
+    start_date = fake.date_between(start_date='-50y', end_date='today')
 
+    new_relationship = (person1_id, person2_id, relationship_type, start_date)
+    cur.execute(add_relationships_query, new_relationship)
     con.commit()
     con.close()
 

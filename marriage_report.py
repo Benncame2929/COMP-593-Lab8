@@ -1,4 +1,4 @@
-import pandas
+import pandas as pd
 import os
 import sqlite3
 from create_relationships import db_path, script_dir
@@ -10,9 +10,9 @@ from create_relationships import db_path, script_dir
 
 def main():
     married_couples = get_married_couples()
-    csv_path = os.path.join(script_dir, 'married_couples.csv')
+    csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'married_couples.csv') 
     save_married_couples_csv(married_couples, csv_path)
-
+    
 
 
 
@@ -21,11 +21,20 @@ def main():
 
 
 def save_married_couples_csv(married_couples, csv_path):
-    MarriedList = []
-    for p1, p2, date in married_couples:
-        MarriedList.append({'PERSON1': p1, 'PERSON2': p2, 'START_DATE': date})
-    datafr = pandas.DataFrame(MarriedList)
-    datafr.to_csv(csv_path, index=False)
+    """Saves list of married couples to a CSV file, including both people's 
+    names and their wedding anniversary date  
+
+    Args:
+        married_couples (list): (name1, name2, start_date) of married couples
+        csv_path (str): Path of CSV file
+    """
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    married_couples = cur.fetchall()
+    header_row = ('Person 1', 'Person 2', 'Anniversary')
+    
+    csv_path = pd.DataFrame(married_couples)
+    csv_path.to_csv(f'married couples.csv', index=False, header=header_row)
 
 
 
@@ -40,26 +49,14 @@ def get_married_couples():
         SELECT person1.name, person2.name, start_date, type FROM relationships
         JOIN people person1 ON person1_id = person1.id
         JOIN people person2 ON person2_id = person2.id
-        WHERE type = "spouse";
+        WHERE person1.id = person1_id AND person2.id = person2_id;
     """
     cur.execute(all_relationships_list)
     all_relationships = cur.fetchall()
-    mariage_List = []
-    for person1, person2, date, ship in all_relationships:
-        mariage_List.append([person1, person2, date])
-    return mariage_List
-
-
-
-
-
-
-
-
-
-
-
-
+    con.close()
+    for person1, person2, start_date, spouse in all_relationships:
+        print(f'{person1} has been a {spouse} of {person2} since {start_date}.')
+    return (person1, person2, start_date)
 
 
 
