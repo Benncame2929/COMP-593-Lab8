@@ -17,28 +17,48 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(script_dir, 'social_network.db')
 
 def main():
+    create_people_table()
     create_relationships_table()
     populate_relationships_table()
 
-def create_relationships_table():
-    """Creates the relationships table in the DB"""
-    
+def create_people_table():
+    """Creates the people table in the DB"""
     con = sqlite3.connect(db_path)
     cur = con.cursor()
-    # SQL query that creates a table named 'relationships'.
+    create_people_tbl_query = """
+    CREATE TABLE IF NOT EXISTS people
+    (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+    );
+    """
+    cur.execute(create_people_tbl_query)
+    con.commit()
+
+    # Populate the people table with 200 fake people
+    fake = Faker()
+    for _ in range(200):
+        cur.execute("INSERT INTO people (name) VALUES (?)", (fake.name(),))
+    
+    con.commit()
+    con.close()
+
+def create_relationships_table():
+    """Creates the relationships table in the DB"""
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
     create_relationships_tbl_query = """
     CREATE TABLE IF NOT EXISTS relationships
     (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     person1_id INTEGER NOT NULL,
     person2_id INTEGER NOT NULL,
-    type       TEXT NOT NULL,
+    type TEXT NOT NULL,
     start_date DATE NOT NULL,
     FOREIGN KEY (person1_id) REFERENCES people (id),
     FOREIGN KEY (person2_id) REFERENCES people (id)
     );
     """
-    # Execute the SQL query to create the 'relationships' table.
     cur.execute(create_relationships_tbl_query)
     con.commit()
     con.close()
@@ -47,29 +67,26 @@ def populate_relationships_table():
     """Adds 100 random relationships to the DB"""
     con = sqlite3.connect(db_path)
     cur = con.cursor()
-    # SQL query that inserts a row of data into the relationships table.
     add_relationship_query = """
     INSERT INTO relationships
-        (
-            person1_id,
-            person2_id,
-            type,
-            start_date
-        )
-        VALUES (?, ?, ?, ?);
+    (
+        person1_id,
+        person2_id,
+        type,
+        start_date
+    )
+    VALUES (?, ?, ?, ?);
     """
-    
     fake = Faker()
-    person1_id = randint(1, 200)
-    person2_id = randint(1, 200)
-    while person2_id == person1_id:
+    for _ in range(100):
+        person1_id = randint(1, 200)
         person2_id = randint(1, 200)
-
-    relationship_type = choice(('friend', 'spouse', 'partner', 'relative'))
-    start_date = fake.date_between(start_date='-50y', end_date='today')
-
-    new_relationship = (person1_id, person2_id, relationship_type, start_date)
-    cur.execute(add_relationships_query, new_relationship)
+        while person2_id == person1_id:
+            person2_id = randint(1, 200)
+        relationship_type = choice(('friend', 'spouse', 'partner', 'relative'))
+        start_date = fake.date_between(start_date='-50y', end_date='today')
+        new_relationship = (person1_id, person2_id, relationship_type, start_date)
+        cur.execute(add_relationship_query, new_relationship)
     con.commit()
     con.close()
 
